@@ -2,13 +2,11 @@ package ru.job4j.persons.model;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"login"}))
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
