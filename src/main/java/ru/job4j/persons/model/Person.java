@@ -13,4 +13,12 @@ public class Person {
     private int id;
     private String login;
     private String password;
+
+    @Override
+    public String toString() {
+        return "Person{"
+                + "id=" + id
+                + ", login='" + login + '\''
+                + '}';
+    }
 }
