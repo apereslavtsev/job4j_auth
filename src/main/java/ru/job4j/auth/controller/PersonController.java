@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -43,7 +44,10 @@ public class PersonController {
         person.setPassword(encoder.encode(person.getPassword()));
         return this.persons.save(person)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.CONFLICT));
+                .orElseGet(() -> ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(person)
+                );
     }
 
     @PutMapping("/")
@@ -64,13 +68,15 @@ public class PersonController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person is not deleted");
     }
 
-    @ExceptionHandler(value = { IllegalArgumentException.class })
+    @ExceptionHandler(value = {IllegalArgumentException.class})
     public void exceptionHandler(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setContentType("application/json");
-        response.getWriter().write(objectMapper.writeValueAsString(new HashMap<>() { {
-            put("message", e.getMessage());
-            put("type", e.getClass());
-        }}));
+        response.getWriter().write(objectMapper.writeValueAsString(new HashMap<>() {
+            {
+                put("message", e.getMessage());
+                put("type", e.getClass());
+            }
+        }));
     }
 }
