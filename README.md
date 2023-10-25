@@ -18,13 +18,13 @@ DELETE
 curl -i -X DELETE http://localhost:8080/person/4
 
 Регистрация нового пользователя с использованием jwt токена
-curl -H "Content-Type: application/json" -X POST -d {"""login""":"""admin""","""password""":"""password"""} "http://localhost:8080/users/sign-up"
+curl -H "Content-Type: application/json" -X POST -d {"""login""":"""admin""","""password""":"""password"""} "http://localhost:8080/person/"
 
 Авторизация ранее созданного пользователя и получение jwt токена http ответом
 curl -i -H "Content-Type: application/json" -X POST -d {"""login""":"""admin""","""password""":"""password"""} "http://localhost:8080/login"
 
 Использование jwt токена при для обращения к сервису
-curl -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTY5OTAzNzkyMX0.-j9J-a9Z7L1r8hCznWIf_-Rogj6HpbxLp3gfeNAZIBJo09gXnIJLD2Y5v9Yj12f8I_CShMaKawjpf1FHorGrjA" http://localhost:8080/users/all
+curl -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTY5OTAzNzkyMX0.-j9J-a9Z7L1r8hCznWIf_-Rogj6HpbxLp3gfeNAZIBJo09gXnIJLD2Y5v9Yj12f8I_CShMaKawjpf1FHorGrjA" http://localhost:8080/person/
 
 # Стек технологий
 - Java 17
