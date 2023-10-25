@@ -1,6 +1,5 @@
 package ru.job4j.auth.controller;
 
-
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +12,7 @@ import ru.job4j.auth.service.PersonService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,6 +31,7 @@ public class PersonController {
         return this.persons.findAll();
     }
 
+    @CheckRequestArguments
     @GetMapping("/{id}")
     public ResponseEntity<Person> findById(@PathVariable int id) {
         return this.persons.findById(id)
@@ -39,6 +40,7 @@ public class PersonController {
                         "Person with id=" + Integer.toString(id) + " not found"));
     }
 
+    @CheckRequestArguments
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
         person.setPassword(encoder.encode(person.getPassword()));
@@ -50,8 +52,10 @@ public class PersonController {
                 );
     }
 
+    @CheckRequestArguments
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
+        person.setPassword(encoder.encode(person.getPassword()));
         boolean updated = persons.update(person);
         if (updated) {
             return ResponseEntity.ok().build();
@@ -59,6 +63,7 @@ public class PersonController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not updated");
     }
 
+    @CheckRequestArguments
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
         boolean deleted = persons.deleteById(id);
@@ -66,6 +71,16 @@ public class PersonController {
             return ResponseEntity.ok().build();
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person is not deleted");
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<Person> patch(@RequestBody Person person) throws InvocationTargetException, IllegalAccessException {
+        if (person.getPassword() != null && (!"".equals(person.getPassword()))) {
+            person.setPassword(encoder.encode(person.getPassword()));
+        }
+        return persons.patch(person).map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Person with id=" + Integer.toString(person.getId()) + " not found"));
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})

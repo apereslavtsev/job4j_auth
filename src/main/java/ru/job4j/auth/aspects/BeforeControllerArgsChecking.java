@@ -11,8 +11,8 @@ import ru.job4j.auth.model.FieldsCheckable;
 @Component
 public class BeforeControllerArgsChecking {
 
-    @Before("execution(* ru.job4j.auth.controller.*.*(..))")
-    public void logBefore(JoinPoint joinPoint) throws IllegalArgumentException {
+    @Before("@annotation(ru.job4j.auth.controller.CheckRequestArguments)")
+    public void checkBefore(JoinPoint joinPoint) throws IllegalArgumentException {
         Signature signature = joinPoint.getSignature();
         Object[] argsObj = joinPoint.getArgs();
         for (Object obj : argsObj) {
