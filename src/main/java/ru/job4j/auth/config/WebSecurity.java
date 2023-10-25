@@ -1,7 +1,8 @@
-package ru.job4j.persons.config;
+package ru.job4j.auth.config;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,9 +14,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.context.annotation.Bean;
-import ru.job4j.persons.service.PersonService;
+import ru.job4j.auth.service.PersonService;
 
-import static ru.job4j.persons.config.JWTAuthenticationFilter.SIGN_UP_URL;
+import static ru.job4j.auth.config.JWTAuthenticationFilter.SIGN_UP_URL;
 
 @Configuration
 @EnableWebSecurity

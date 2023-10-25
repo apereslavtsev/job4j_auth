@@ -1,4 +1,4 @@
-package ru.job4j.persons.model;
+package ru.job4j.auth.model;
 
 import lombok.Data;
 
@@ -12,7 +12,13 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String login;
+
     private String password;
+
+    public boolean loginAndPasswordIsNotEmpty() {
+        return !(this.login == null || "".equals(this.login)
+                || this.password == null || "".equals(this.password));
+    }
 
     @Override
     public String toString() {

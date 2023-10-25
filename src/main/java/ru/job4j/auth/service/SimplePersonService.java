@@ -1,12 +1,12 @@
-package ru.job4j.persons.service;
+package ru.job4j.auth.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import ru.job4j.persons.model.Person;
-import ru.job4j.persons.repository.PersonRepository;
+import ru.job4j.auth.model.Person;
+import ru.job4j.auth.repository.PersonRepository;
 
 import java.util.List;
 import java.util.Optional;

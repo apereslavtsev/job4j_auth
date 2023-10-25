@@ -1,7 +1,7 @@
-package ru.job4j.persons.service;
+package ru.job4j.auth.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
-import ru.job4j.persons.model.Person;
+import ru.job4j.auth.model.Person;
 
 import java.util.List;
 import java.util.Optional;

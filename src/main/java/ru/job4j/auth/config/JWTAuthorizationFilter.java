@@ -1,4 +1,4 @@
-package ru.job4j.persons.config;
+package ru.job4j.auth.config;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -14,9 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static ru.job4j.persons.config.JWTAuthenticationFilter.HEADER_STRING;
-import static ru.job4j.persons.config.JWTAuthenticationFilter.SECRET;
-import static ru.job4j.persons.config.JWTAuthenticationFilter.TOKEN_PREFIX;
+import static ru.job4j.auth.config.JWTAuthenticationFilter.HEADER_STRING;
+import static ru.job4j.auth.config.JWTAuthenticationFilter.SECRET;
+import static ru.job4j.auth.config.JWTAuthenticationFilter.TOKEN_PREFIX;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 

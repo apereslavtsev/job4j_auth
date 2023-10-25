@@ -1,4 +1,4 @@
-package ru.job4j.persons.controller;
+package ru.job4j.auth.controller;
 
 
 import lombok.AllArgsConstructor;
@@ -7,10 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.job4j.persons.model.Person;
-import ru.job4j.persons.service.PersonService;
+import ru.job4j.auth.model.Person;
+import ru.job4j.auth.service.PersonService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/person")
@@ -18,6 +23,7 @@ import java.util.List;
 public class PersonController {
     private final PersonService persons;
     private final PasswordEncoder encoder;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/")
     public List<Person> findAll() {
@@ -28,7 +34,8 @@ public class PersonController {
     public ResponseEntity<Person> findById(@PathVariable int id) {
         return this.persons.findById(id)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Person with id=" + Integer.toString(id) + " not found"));
     }
 
     @PostMapping("/")
@@ -55,5 +62,15 @@ public class PersonController {
             return ResponseEntity.ok().build();
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person is not deleted");
+    }
+
+    @ExceptionHandler(value = { IllegalArgumentException.class })
+    public void exceptionHandler(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        response.setContentType("application/json");
+        response.getWriter().write(objectMapper.writeValueAsString(new HashMap<>() { {
+            put("message", e.getMessage());
+            put("type", e.getClass());
+        }}));
     }
 }
