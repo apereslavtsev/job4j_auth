@@ -21,6 +21,4 @@ public interface PersonService extends UserDetailsService {
 
     Optional<Person> findByLogin(String login);
 
-    Optional<Person> patch(Person person) throws InvocationTargetException, IllegalAccessException;
-
 }

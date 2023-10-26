@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.auth.model.Person;
+import ru.job4j.auth.model.PersonDTO;
 import ru.job4j.auth.service.PersonService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -74,13 +76,20 @@ public class PersonController {
     }
 
     @PatchMapping("/")
-    public ResponseEntity<Person> patch(@RequestBody Person person) throws InvocationTargetException, IllegalAccessException {
-        if (person.getPassword() != null && (!"".equals(person.getPassword()))) {
-            person.setPassword(encoder.encode(person.getPassword()));
+    public ResponseEntity<Person> patch(@RequestBody PersonDTO newPerson) {
+        Optional<Person> currentPersonOpt = persons.findById(newPerson.getId());
+        if (currentPersonOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Person with id=" + Integer.toString(newPerson.getId()) + " not found");
         }
-        return persons.patch(person).map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Person with id=" + Integer.toString(person.getId()) + " not found"));
+        Person currentPerson = currentPersonOpt.get();
+        currentPerson.setLogin(newPerson.getLogin());
+
+        return persons.save(currentPerson)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(currentPerson));
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})
