@@ -4,14 +4,19 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.job4j.auth.model.Operation;
 import ru.job4j.auth.model.Person;
 import ru.job4j.auth.model.PersonDTO;
 import ru.job4j.auth.service.PersonService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -23,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 @RequestMapping("/person")
 @AllArgsConstructor
+@Validated
 public class PersonController {
     private final PersonService persons;
     private final PasswordEncoder encoder;
@@ -33,18 +39,17 @@ public class PersonController {
         return this.persons.findAll();
     }
 
-    @CheckRequestArguments
     @GetMapping("/{id}")
-    public ResponseEntity<Person> findById(@PathVariable int id) {
+    public ResponseEntity<Person> findById(@PathVariable @Valid @Positive int id) {
         return this.persons.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Person with id=" + Integer.toString(id) + " not found"));
     }
 
-    @CheckRequestArguments
     @PostMapping("/")
-    public ResponseEntity<Person> create(@RequestBody Person person) {
+    @Validated(Operation.OnCreate.class)
+    public ResponseEntity<Person> create(@RequestBody @Valid @NotNull Person person) {
         person.setPassword(encoder.encode(person.getPassword()));
         return this.persons.save(person)
                 .map(ResponseEntity::ok)
@@ -54,9 +59,9 @@ public class PersonController {
                 );
     }
 
-    @CheckRequestArguments
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Person person) {
+    @Validated(Operation.OnUpdate.class)
+    public ResponseEntity<Void> update(@RequestBody @Valid @NotNull Person person) {
         person.setPassword(encoder.encode(person.getPassword()));
         boolean updated = persons.update(person);
         if (updated) {
@@ -65,9 +70,8 @@ public class PersonController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not updated");
     }
 
-    @CheckRequestArguments
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
+    public ResponseEntity<Void> delete(@PathVariable @Valid @Positive int id) {
         boolean deleted = persons.deleteById(id);
         if (deleted) {
             return ResponseEntity.ok().build();
@@ -75,8 +79,10 @@ public class PersonController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person is not deleted");
     }
 
+
     @PatchMapping("/")
-    public ResponseEntity<Person> patch(@RequestBody PersonDTO newPerson) {
+    @Validated(Operation.OnUpdate.class)
+    public ResponseEntity<Person> patch(@RequestBody @Valid @NotNull PersonDTO newPerson) {
         Optional<Person> currentPersonOpt = persons.findById(newPerson.getId());
         if (currentPersonOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -92,15 +98,4 @@ public class PersonController {
                         .body(currentPerson));
     }
 
-    @ExceptionHandler(value = {IllegalArgumentException.class})
-    public void exceptionHandler(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setStatus(HttpStatus.BAD_REQUEST.value());
-        response.setContentType("application/json");
-        response.getWriter().write(objectMapper.writeValueAsString(new HashMap<>() {
-            {
-                put("message", e.getMessage());
-                put("type", e.getClass());
-            }
-        }));
-    }
 }
